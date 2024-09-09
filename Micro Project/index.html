@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Enrollment Form</title>
+    <script>
+        function resetForm() {
+            document.getElementById("studentForm").reset();
+            document.getElementById("rollNo").disabled = false;
+            document.getElementById("fullName").disabled = true;
+            document.getElementById("class").disabled = true;
+            document.getElementById("birthDate").disabled = true;
+            document.getElementById("address").disabled = true;
+            document.getElementById("enrollmentDate").disabled = true;
+            document.getElementById("saveButton").disabled = true;
+            document.getElementById("updateButton").disabled = true;
+        }
+
+        function enableFields() {
+            document.getElementById("rollNo").disabled = true;
+            document.getElementById("fullName").disabled = false;
+            document.getElementById("class").disabled = false;
+            document.getElementById("birthDate").disabled = false;
+            document.getElementById("address").disabled = false;
+            document.getElementById("enrollmentDate").disabled = false;
+            document.getElementById("saveButton").disabled = false;
+            document.getElementById("updateButton").disabled = false;
+        }
+
+        function checkRollNo() {
+            var rollNo = document.getElementById("rollNo").value;
+            if (rollNo === "") {
+                resetForm();
+                return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "check_roll_no.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.exists) {
+                        document.getElementById("fullName").value = response.fullName;
+                        document.getElementById("class").value = response.class;
+                        document.getElementById("birthDate").value = response.birthDate;
+                        document.getElementById("address").value = response.address;
+                        document.getElementById("enrollmentDate").value = response.enrollmentDate;
+                        enableFields();
+                    } else {
+                        resetForm();
+                        document.getElementById("rollNo").disabled = false;
+                        document.getElementById("saveButton").disabled = false;
+                        document.getElementById("resetButton").disabled = false;
+                    }
+                }
+            };
+            xhr.send("rollNo=" + rollNo);
+        }
+    </script>
+</head>
+<body onload="resetForm()">
+    <h1>Student Enrollment Form</h1>
+    <form id="studentForm" action="submit_form.php" method="post">
+        <label for="rollNo">Roll No:</label>
+        <input type="text" id="rollNo" name="rollNo" onblur="checkRollNo()" required><br><br>
+
+        <label for="fullName">Full Name:</label>
+        <input type="text" id="fullName" name="fullName" disabled required><br><br>
+
+        <label for="class">Class:</label>
+        <input type="text" id="class" name="class" disabled required><br><br>
+
+        <label for="birthDate">Birth Date:</label>
+        <input type="date" id="birthDate" name="birthDate" disabled required><br><br>
+
+        <label for="address">Address:</label>
+        <textarea id="address" name="address" disabled required></textarea><br><br>
+
+        <label for="enrollmentDate">Enrollment Date:</label>
+        <input type="date" id="enrollmentDate" name="enrollmentDate" disabled required><br><br>
+
+        <input type="submit" id="saveButton" value="Save" disabled>
+        <input type="submit" id="updateButton" value="Update" disabled>
+        <input type="button" id="resetButton" value="Reset" onclick="resetForm()">
+    </form>
+</body>
+</html>
